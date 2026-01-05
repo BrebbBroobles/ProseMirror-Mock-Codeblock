@@ -1,6 +1,6 @@
 import { EditorState, Transaction, type Command } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { Schema } from "prosemirror-model";
+import { DOMParser, Schema } from "prosemirror-model";
 import { undo, redo, history } from "prosemirror-history";
 import { keymap } from "prosemirror-keymap";
 import {
@@ -142,11 +142,18 @@ if (tabCheckbox instanceof HTMLInputElement) {
 }
 
 if (editorTarget) {
+  const contentHtml = `<p>def foo() -> None:</p>
+    <p>&nbsp &nbsp print(1+1)</p>
+    <p>&nbsp &nbsp print("I wanna indent this line!")</p>`
+  
+  const element: HTMLDivElement = document.createElement("div");
+  element.innerHTML = contentHtml;
+
+  const defaultDoc = DOMParser.fromSchema(schema).parse(element);
+
   const state = EditorState.create({
     schema,
-    doc: schema.node("doc", null, [
-      schema.node("paragraph", null, [schema.text("Hi?")]),
-    ]),
+    doc: defaultDoc,
     plugins: [
       history(),
       keymap({
